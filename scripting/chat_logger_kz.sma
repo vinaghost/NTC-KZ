@@ -10,7 +10,7 @@
 
 
 
-#define table           "chatlog_public"
+#define table           "chatlog_kz"
 
 // SQL Settings
 new Handle:g_SqlX

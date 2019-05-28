@@ -1,0 +1,10 @@
+{ 
+    "version": "2.0.0",  
+    "type": "shell", 
+    "args": ["${relativeFile}"],  
+    "windows":  
+    {  
+        "command": "${workspaceRoot}\\compiler\\amxxpc.exe"  
+    },
+    "problemMatchers": []
+}  

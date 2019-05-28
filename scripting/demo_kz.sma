@@ -10,7 +10,7 @@
 new textmsg
 
 public plugin_init() { 
-	register_plugin( "DEMO PUBLIC", "1.5", "IzI" );
+	register_plugin( "DEMO KZ", "1.5", "IzI" );
 	textmsg = get_user_msgid("SayText")
 }
 
@@ -24,8 +24,8 @@ public Record( id ) {
 		return;
 	
 	
-	client_cmd( id, "stop; record ^"NTC_Public^"");
-	client_mau( id, "!g[Thông báo] !yChú ý server có ghi lại demo. Tên demo là !g^"NTC_Public.dem^"");
+	client_cmd( id, "stop; record ^"NTC_Kz^"");
+	client_mau( id, "!g[Thông báo] !yChú ý server có ghi lại demo. Tên demo là !g^"NTC_Kz.dem^"");
 	client_mau( id, "!g[Thông báo] !yDemo được lưu ở dường dẫn !g<thư mục CS>/cstrike/");
 	client_mau( id, "!g[Thông báo] !yNếu bỏ qua thông báo này, VINA không chịu trách nhiệm nếu bạn bị ban hay kick");
 	client_mau( id, "!g[Thông báo] !yMọi kiện cáo đều phải có demo, không có thì miễn tiếp");
@@ -49,7 +49,7 @@ stock client_mau(const id, const input[], any:...)
 	{ 
 		if (is_user_connected(players[i])) 
 		{ 
-	client_mau( id, "!g[Thông báo] !yNếu bỏ qua thông báo này, VINA không chịu trách nhiệm nếu bạn bị ban hay kick");
+	
 			
 			message_begin(MSG_ONE_UNRELIABLE, textmsg , _, players[i]) 
 			write_byte(players[i]) 

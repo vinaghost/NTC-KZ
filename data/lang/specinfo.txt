@@ -1,0 +1,49 @@
+[en]
+SPECTATING = Spectating
+JUMP = jump
+DUCK = duck
+LAME =   -
+SPEC_LIST_DISABLED = Spectator list disabled.
+SPEC_LIST_ENABLED = Spectator list enabled.
+SPEC_KEYS_DISABLED = Spectator keys disabled.
+SPEC_KEYS_ENABLED = Spectator keys enabled.
+SPEC_OWNKEYS_DISABLED = View own keys disabled.
+SPEC_OWNKEYS_ENABLED = View own keys enabled.
+SPEC_HIDE_DISABLED = Hidden mode disabled.
+SPEC_HIDE_ENABLED = Hidden mode enabled.
+
+[es]
+SPECTATING = Espectador
+JUMP = saltar
+DUCK = agachar
+LAME =   -
+SPEC_LIST_DISABLED = Listas espectadores incapacitado.
+SPEC_LIST_ENABLED = Listas espectadores capacitado.
+SPEC_KEYS_DISABLED = Teclas espectadores incapacitado.
+SPEC_KEYS_ENABLED = Teclas espectadores capacitado.
+SPEC_OWNKEYS_DISABLED = Ver propias teclas incapacitado.
+SPEC_OWNKEYS_ENABLED = Ver propias teclas capacitado.
+SPEC_HIDE_DISABLED = Estado oculto incapacitado.
+SPEC_HIDE_ENABLED = Estado oculto capacitado.
+
+[de]
+SPECTATING = Schaut zu
+JUMP = Springt
+DUCK = Duckt sich
+LAME = -
+SPEC_LIST_DISABLED = Zuschauerliste deaktiviert.
+SPEC_LIST_ENABLED = Zuschauerliste aktiviert.
+SPEC_KEYS_DISABLED = Zuschauertasten deaktiviert.
+SPEC_KEYS_ENABLED = Zuschauertasten aktiviert.
+
+[cz]
+SPECTATING = Spectatori
+JUMP = skok
+DUCK = duck
+LAME = -
+SPEC_LIST_DISABLED = Spectator list vypnut.
+SPEC_LIST_ENABLED = Spectator list zapnut.
+SPEC_KEYS_DISABLED = Spectator klavesy vypnuty.
+SPEC_KEYS_ENABLED = Spectator klavesy zapnuty.
+SPEC_HIDE_DISABLED = Skryty mod vypnut.
+SPEC_HIDE_ENABLED = Skryty mod zapnut.
