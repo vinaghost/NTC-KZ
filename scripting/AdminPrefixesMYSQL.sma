@@ -76,7 +76,7 @@
 *		-  Added IP and Name support in ap_prefixes.ini
 *		-  Added Forbidden Say characters
 *		-  New CVARS for setting the flags for each of the options
-*	
+*
 *	May 29, 2012   -  V2.1:
 *		-  Fixed bug with some say or say_team commands are not executed
 *
@@ -93,8 +93,8 @@
 *		-  Small code changes and little bug fixes
 *		-  Added Prefux Toggle command
 *		-  Fixed bug with the supporting of the plugin on AMXX 1.8.2
-*		-  AMXX 1.8.2 Supprot! 
-*		-  SQL Version! 
+*		-  AMXX 1.8.2 Supprot!
+*		-  SQL Version!
 *
 *
 *** Contact me on:
@@ -169,7 +169,7 @@ new const in_prefix[] = "[NTC]"
 public plugin_init()
 {
 	register_plugin("Admin Prefixes", VERSION, "m0skVi4a ;]")
-	
+
 	g_bad_prefix = register_cvar("ap_bad_prefixes", "1")
 	g_listen = register_cvar("ap_listen", "1")
 	g_listen_flag = register_cvar("ap_listen_flag", "a")
@@ -224,7 +224,7 @@ public QueryCreateTable(failstate, Handle:query, error[], errcode, data[], datas
 		mysql_connected = true
 		LoadFlagsPrefixes(0)
 		LoadBadPrefixes(0)
-	}	
+	}
 }
 
 public LoadFlagsPrefixes(id)
@@ -264,8 +264,8 @@ public QueryLoadFlagPrefixes(FailState, Handle:Query, error[], errorcode, data[]
 		col_prefix = SQL_FieldNameToNum(Query, "Prefix")
 
 		server_print(separator)
-		
-		while(SQL_MoreResults(Query)) 
+
+		while(SQL_MoreResults(Query))
 		{
 			SQL_ReadResult(Query, col_key, temp_key, charsmax(temp_key))
 			SQL_ReadResult(Query, col_prefix, temp_prefix, charsmax(temp_prefix))
@@ -294,14 +294,14 @@ public QueryLoadFlagPrefixes(FailState, Handle:Query, error[], errorcode, data[]
 			TrieSetString(client_prefix, str_id, "")
 			PutPrefix(i)
 		}
-	}	
+	}
 }
 
 public LoadBadPrefixes(id)
 {
 	if(!mysql_connected)
 		return PLUGIN_HANDLED
-		
+
 	if(!get_pcvar_num(g_bad_prefix))
 	{
 		console_print(id, "%L", LANG_SERVER, "BADP_OFF", in_prefix)
@@ -340,7 +340,7 @@ public QueryLoadBadPrefixes(FailState, Handle:Query, error[], errorcode, data[],
 
 		server_print(separator)
 
-		while(SQL_MoreResults(Query)) 
+		while(SQL_MoreResults(Query))
 		{
 			SQL_ReadResult(Query, col_prefix, temp_prefix, charsmax(temp_prefix))
 
@@ -431,11 +431,9 @@ public HookSay(id)
 	{
 		if(!is_user_connected(i))
 			continue
-		
-		if( (!is_user_alive(id) && is_user_alive(i) ) || (!is_user_alive(i) && is_user_alive(id)))
-			continue
+
 		send_message(g_message, id, i)
-		
+
 	}
 
 	return PLUGIN_HANDLED_MAIN
@@ -503,7 +501,7 @@ public HookSayTeam(id)
 		if(get_user_team(id) == get_user_team(i) || get_pcvar_num(g_listen) && get_user_flags(i) & read_flags(temp_cvar))
 		{
 			send_message(g_message, id, i)
-			
+
 		}
 	}
 
@@ -583,7 +581,7 @@ public SetPlayerPrefix(id)
 	{
 		formatex(query, charsmax(query), "DELETE FROM `ap_prefixes` WHERE Type_fisn = ^"%s^" AND Key_fisn = ^"%s^";", arg_type, arg_key)
 		SQL_ThreadQuery(g_sqltuple, "QuerySetData", query)
-		
+
 		if(equal(arg_type[0], "f"))
 		{
 			TrieSetString(pre_flags_collect, arg_key, "")
@@ -635,7 +633,7 @@ public SetPlayerPrefix(id)
 	}
 
 	console_print(id, "%s You have successfully changed %s ^"%s^"'s Custom Prefix to - %s", in_prefix, temp_str, arg_key, arg_prefix)
-	server_print("%s Player %s changed %s ^"%s^"'s Custom Prefix to - %s", in_prefix, g_name, temp_str, arg_key, arg_prefix) 
+	server_print("%s Player %s changed %s ^"%s^"'s Custom Prefix to - %s", in_prefix, g_name, temp_str, arg_key, arg_prefix)
 
 	return PLUGIN_HANDLED
 }
@@ -710,7 +708,7 @@ public PutPrefix(id)
 }
 
 public QuerySelectData(FailState, Handle:Query, error[], errorcode, data[], datasize, Float:fQueueTime)
-{ 
+{
 	if(FailState == TQUERY_CONNECT_FAILED || FailState == TQUERY_QUERY_FAILED)
 	{
 		log_amx("%s", error)
@@ -723,7 +721,7 @@ public QuerySelectData(FailState, Handle:Query, error[], errorcode, data[], data
 
 		num_to_str(id, str_id, charsmax(str_id))
 
-		while(SQL_MoreResults(Query)) 
+		while(SQL_MoreResults(Query))
 		{
 			SQL_ReadResult(Query, col_prefix, temp_prefix, charsmax(temp_prefix))
 			TrieSetString(client_prefix, str_id, temp_prefix)
