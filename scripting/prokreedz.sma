@@ -36,10 +36,10 @@ new const KZ_STARTFILE_TEMP[] = "temp_start.ini"
 new Handle:g_SqlTuple
 new Handle:SqlConnection
 new g_Error[512]
-new kz_sql_host
+/*new kz_sql_host
 new kz_sql_user
 new kz_sql_pass
-new kz_sql_db
+new kz_sql_db*/
 new kz_sql_name
 new kz_sql_files
 #else
@@ -177,13 +177,10 @@ new const g_block_commands[][]=
 #if defined USE_SQL
 enum
 {
-	TOP_NULL,
 	PRO_TOP,
 	NUB_TOP,
-	LAST_PRO10,
-	PRO_RECORDS,
-	PLAYERS_RANKING,
-	MAPS_STATISTIC
+	PLAYERS_RANKING_PRO,
+	PLAYERS_RANKING_NUB
 }
 #endif
 
@@ -225,10 +222,10 @@ public plugin_init()
 	kz_save_pos_gochecks = register_cvar("kz_save_pos_gochecks", "1")
 
 	#if defined USE_SQL
-	kz_sql_host = register_cvar("kz_sql_host", "") // Host of DB
+	/*kz_sql_host = register_cvar("kz_sql_host", "") // Host of DB
 	kz_sql_user = register_cvar("kz_sql_user", "") // Username of DB
 	kz_sql_pass = register_cvar("kz_sql_pass", "", FCVAR_PROTECTED) // Password for DB user
-	kz_sql_db = register_cvar("kz_sql_db", "") // DB Name for the top 15
+	kz_sql_db = register_cvar("kz_sql_db", "") // DB Name for the top 15*/
 	kz_sql_name = register_cvar("kz_sql_server", "") // Name of server
 	kz_sql_files = register_cvar("kz_sql_files", "") // Path of the PHP files
 	#endif
@@ -257,14 +254,14 @@ public plugin_init()
 	kz_register_saycmd("menu","kz_menu", 0)
 	kz_register_saycmd("nc", "noclip", 0)
 	kz_register_saycmd("noclip", "noclip", 0)
-	kz_register_saycmd("noob10", "NoobTop_show", 0)
+	/*kz_register_saycmd("noob10", "NoobTop_show", 0)
 	kz_register_saycmd("noob15", "NoobTop_show", 0)
 	kz_register_saycmd("nub10", "NoobTop_show", 0)
-	kz_register_saycmd("nub15", "NoobTop_show", 0)
+	kz_register_saycmd("nub15", "NoobTop_show", 0)*/
 	kz_register_saycmd("pause", "Pause", 0)
 	kz_register_saycmd("pinvis", "cmdInvisible", 0)
-	kz_register_saycmd("pro10", "ProTop_show", 0)
-	kz_register_saycmd("pro15", "ProTop_show", 0)
+	/*kz_register_saycmd("pro10", "ProTop_show", 0)
+	kz_register_saycmd("pro15", "ProTop_show", 0)*/
 	kz_register_saycmd("reset", "reset_checkpoints", 0)
 	kz_register_saycmd("respawn", "goStart", 0)
 	kz_register_saycmd("savepos", "SavePos", 0)
@@ -2081,13 +2078,11 @@ public top15menu(id)
 	menu_additem(menu, "\wPro 15", "1", 0)
 	menu_additem(menu, "\wNoob 15^n^n", "2", 0)
 	#if defined USE_SQL
-	menu_additem(menu, "Pro Records","3")
-	menu_additem(menu, "Players Rankings^n","4")
-	menu_additem(menu, "Last 10 Pro Entries", "5")
-	menu_additem(menu, "Maps Statistic","6")
-	menu_additem(menu, "Main Menu", "7")
+	menu_additem(menu, "Players Rankings Pro","3")
+	menu_additem(menu, "Players Rankings Noob","4")
+	menu_additem(menu, "Main Menu", "5")
 	#else
-	menu_additem(menu, "\wMain Menu", "3", 0)
+	menu_additem(menu, "\wMain Menu", "6", 0)
 	#endif
 
 	menu_display(id, menu, 0);
@@ -2107,29 +2102,21 @@ public top15handler(id, menu, item)
 	{
 		case 0:
 		{
-			ProTop_show(id)
+			kz_showhtml_motd(id, PRO_TOP, MapName)
 		}
 		case 1:
 		{
-			NoobTop_show(id)
+			kz_showhtml_motd(id, NUB_TOP, MapName)
 		}
 		case 2:
 		{
-			kz_showhtml_motd(id, PRO_RECORDS, "")
+			kz_showhtml_motd(id, PLAYERS_RANKING_PRO, MapName)
 		}
 		case 3:
 		{
-			kz_showhtml_motd(id, PLAYERS_RANKING, "")
+			kz_showhtml_motd(id, PLAYERS_RANKING_PRO, MapName)
 		}
 		case 4:
-		{
-			kz_showhtml_motd(id, LAST_PRO10, "")
-		}
-		case 5:
-		{
-			kz_showhtml_motd(id, MAPS_STATISTIC, "")
-		}
-		case 6:
 		{
 			kz_menu(id)
 		}
@@ -2494,7 +2481,7 @@ public GetNewRank_QueryHandler(iFailState, Handle:hQuery, szError[], iErrnum, cD
 
 	return PLUGIN_CONTINUE
 }
-
+/*
 public ProTop_show(id)
 {
 	kz_showhtml_motd(id, PRO_TOP, MapName)
@@ -2524,50 +2511,37 @@ public ProRecs_show(id)
 	kz_showhtml_motd(id, PRO_RECORDS, MapName)
 
 	return PLUGIN_HANDLED
-}
+}*/
 
 stock kz_showhtml_motd(id, type, const map[])
 {
-	new buffer[1001], namebuffer[64], filepath[96]
+	new buffer[125], filepath[96]
 	get_pcvar_string(kz_sql_files, filepath, 95)
 	new authid[32]
-	get_user_authid(id, authid, 31)
+	get_user_name(id, authid, 31)
 
 	switch( type )
 	{
 		case PRO_TOP:
 		{
-			formatex(namebuffer, 63, "Pro 15 of %s", equal(map, "") ? "All Maps" : map)
-			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/pro15.php?map=%s^"></head><body><p>LOADING...</p></body></html>", filepath, map)
+			formatex(buffer, 124,"http://%s/index.php?map=%s&type=pro", filepath, map)
+
 		}
 		case NUB_TOP:
 		{
-			formatex(namebuffer, 63, "Noob 15 of %s", equal(map, "") ? "All Maps" : map)
-			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/nub15.php?map=%s^"></head><body><p>LOADING...</p></body></html>", filepath, map)
+			formatex(buffer, 124,"http://%s/index.php?map=%s&type=nub", filepath, map)
 		}
-		case PRO_RECORDS:
+		case PLAYERS_RANKING_PRO:
 		{
-			formatex(namebuffer, 63, "ProRecords and Rank")
-			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/player.php?authid=%s^"></head><body><p>LOADING...</p></body></html>", filepath, authid)
+			formatex(buffer, 124,"http://%s/index.php?name=%s&type=pro", filepath, authid)
 		}
-		case PLAYERS_RANKING:
+		case PLAYERS_RANKING_NUB:
 		{
-			formatex(namebuffer, 63, "Players Ranking")
-			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/players.php^"></head><body><p>LOADING...</p></body></html>", filepath, authid)
-		}
-		case LAST_PRO10:
-		{
-			formatex(namebuffer, 63, "Last 10 Pro Entries")
-			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/lastpro.php^"></head><body><p>LOADING...</p></body></html>", filepath)
-		}
-		case MAPS_STATISTIC:
-		{
-			formatex(namebuffer, 63, "Maps Statistic")
-			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/map.php^"></head><body><p>LOADING...</p></body></html>", filepath)
+			formatex(buffer, 124,"http://%s/index.php?name=%s&type=nub", filepath, authid)
 		}
 	}
 
-	show_motd(id, buffer, namebuffer)
+	show_motd(id, buffer)
 }
 #else
 public ProTop_update(id, Float:time)
