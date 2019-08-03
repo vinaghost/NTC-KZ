@@ -5,7 +5,7 @@
 #include <fakemeta>
 #include <hamsandwich>
 
-#define USE_SQL
+//#define USE_SQL
 
 #if defined USE_SQL
  #include <sqlx>
@@ -36,10 +36,10 @@ new const KZ_STARTFILE_TEMP[] = "temp_start.ini"
 new Handle:g_SqlTuple
 new Handle:SqlConnection
 new g_Error[512]
-/*new kz_sql_host
+new kz_sql_host
 new kz_sql_user
 new kz_sql_pass
-new kz_sql_db*/
+new kz_sql_db
 new kz_sql_name
 new kz_sql_files
 #else
@@ -177,10 +177,13 @@ new const g_block_commands[][]=
 #if defined USE_SQL
 enum
 {
+	TOP_NULL,
 	PRO_TOP,
 	NUB_TOP,
-	PLAYERS_RANKING_PRO,
-	PLAYERS_RANKING_NUB
+	LAST_PRO10,
+	PRO_RECORDS,
+	PLAYERS_RANKING,
+	MAPS_STATISTIC
 }
 #endif
 
@@ -222,10 +225,10 @@ public plugin_init()
 	kz_save_pos_gochecks = register_cvar("kz_save_pos_gochecks", "1")
 
 	#if defined USE_SQL
-	/*kz_sql_host = register_cvar("kz_sql_host", "") // Host of DB
+	kz_sql_host = register_cvar("kz_sql_host", "") // Host of DB
 	kz_sql_user = register_cvar("kz_sql_user", "") // Username of DB
 	kz_sql_pass = register_cvar("kz_sql_pass", "", FCVAR_PROTECTED) // Password for DB user
-	kz_sql_db = register_cvar("kz_sql_db", "") // DB Name for the top 15*/
+	kz_sql_db = register_cvar("kz_sql_db", "") // DB Name for the top 15
 	kz_sql_name = register_cvar("kz_sql_server", "") // Name of server
 	kz_sql_files = register_cvar("kz_sql_files", "") // Path of the PHP files
 	#endif
@@ -260,8 +263,8 @@ public plugin_init()
 	kz_register_saycmd("nub15", "NoobTop_show", 0)*/
 	kz_register_saycmd("pause", "Pause", 0)
 	kz_register_saycmd("pinvis", "cmdInvisible", 0)
-	/*kz_register_saycmd("pro10", "ProTop_show", 0)
-	kz_register_saycmd("pro15", "ProTop_show", 0)*/
+	//kz_register_saycmd("pro10", "ProTop_show", 0)
+	//kz_register_saycmd("pro15", "ProTop_show", 0)
 	kz_register_saycmd("reset", "reset_checkpoints", 0)
 	kz_register_saycmd("respawn", "goStart", 0)
 	kz_register_saycmd("savepos", "SavePos", 0)
@@ -273,8 +276,8 @@ public plugin_init()
 	kz_register_saycmd("stuck", "Stuck", 0)
 	kz_register_saycmd("teleport", "GoCheck", 0)
 	kz_register_saycmd("timer", "ShowTimer_Menu", 0)
-	kz_register_saycmd("top15", "top15menu",0)
-	kz_register_saycmd("top10", "top15menu",0)
+	//kz_register_saycmd("top15", "top15menu",0)
+	//kz_register_saycmd("top10", "top15menu",0)
 	kz_register_saycmd("tp", "GoCheck",0)
 	kz_register_saycmd("usp", "cmdUsp", 0)
 	kz_register_saycmd("weapons", "weapons", 0)
@@ -282,8 +285,8 @@ public plugin_init()
 	kz_register_saycmd("winvis", "cmdWaterInvisible", 0)
 
 	#if defined USE_SQL
-	kz_register_saycmd("prorecords", "ProRecs_show", 0)
-	kz_register_saycmd("prorecs", "ProRecs_show", 0)
+	//kz_register_saycmd("prorecords", "ProRecs_show", 0)
+	//kz_register_saycmd("prorecs", "ProRecs_show", 0)
 	#endif
 
 	register_event("CurWeapon", "curweapon", "be", "1=1")
@@ -360,9 +363,14 @@ public plugin_init()
 #if defined USE_SQL
 public plugin_sql()
 {
+	new host[64], user[64], pass[64], db[64]
 
-	g_SqlTuple = SQL_MakeStdTuple();
+	get_pcvar_string(kz_sql_host, host, 63)
+	get_pcvar_string(kz_sql_user, user, 63)
+	get_pcvar_string(kz_sql_pass, pass, 63)
+	get_pcvar_string(kz_sql_db, db, 63)
 
+	g_SqlTuple = SQL_MakeDbTuple(host, user, pass, db)
 
 	new ErrorCode
 	SqlConnection = SQL_Connect(g_SqlTuple,ErrorCode,g_Error,511)
@@ -1604,9 +1612,9 @@ public FwdHamPlayerSpawn( id )
 
 	if(firstspawn[id])
 	{
-		ColorChat(id, GREEN,  "%s^x01 Welcome to ^x03nucLeaR's Server ^x01", prefix)
-		ColorChat(id, GREEN,  "%s^x01 Visit ^x03www.google.com ^x01", prefix)
-
+		/*ColorChat(id, GREEN,  "%s^x01 Welcome to ^x03nucLeaR's Server ^x01", prefix)
+		ColorChat(id, GREEN,  "%s^x01 Visit ^x03vinaw ^x01", prefix)
+*/
 		if(get_pcvar_num(kz_checkpoints) == 0)
 			ColorChat(id, GREEN,  "%s^x01 %L", id, "KZ_CHECKPOINT_OFF", prefix)
 
@@ -1662,12 +1670,12 @@ public SavePos(id)
 		return PLUGIN_HANDLED
 	}
 
-	if(equal(authid, "VALVE_ID_LAN") || equal(authid, "STEAM_ID_LAN") || strlen(authid) > 18)
+	/*if(equal(authid, "VALVE_ID_LAN") || equal(authid, "STEAM_ID_LAN") || strlen(authid) > 18)
 	{
 		ColorChat (id, GREEN, "%s^x01 %L", prefix, id, "KZ_NO_STEAM")
 
 		return PLUGIN_HANDLED
-	}
+	}*/
 
 	if( !( pev( id, pev_flags ) & FL_ONGROUND2  ) )
 	{
@@ -1823,7 +1831,7 @@ public kz_savepos (id, Float:time, checkpoints, gochecks, Float:origin[3], scout
 
 //=================================================================================================
 
-public client_disconnect(id)
+public client_disconnected(id)
 {
 	checknumbers[id] = 0
 	gochecknumbers[id] = 0
@@ -1905,7 +1913,8 @@ public MenuHandler(id , menu, item)
 			kz_menu(id)
 		}
 		case 2:{
-			top15menu(id)
+		//	top15menu(id)
+			kz_menu(id)
 		}
 		case 3:{
 			goStart(id)
@@ -2002,8 +2011,6 @@ public ShowTimer_Menu(id)
 		menu_display(id, menu, 0)
 		return PLUGIN_HANDLED
 	}
-
-	return PLUGIN_HANDLED
 }
 
 public TimerHandler (id, menu, item)
@@ -2078,11 +2085,13 @@ public top15menu(id)
 	menu_additem(menu, "\wPro 15", "1", 0)
 	menu_additem(menu, "\wNoob 15^n^n", "2", 0)
 	#if defined USE_SQL
-	menu_additem(menu, "Players Rankings Pro","3")
-	menu_additem(menu, "Players Rankings Noob","4")
-	menu_additem(menu, "Main Menu", "5")
+	menu_additem(menu, "Pro Records","3")
+	menu_additem(menu, "Players Rankings^n","4")
+	menu_additem(menu, "Last 10 Pro Entries", "5")
+	menu_additem(menu, "Maps Statistic","6")
+	menu_additem(menu, "Main Menu", "7")
 	#else
-	menu_additem(menu, "\wMain Menu", "6", 0)
+	menu_additem(menu, "\wMain Menu", "3", 0)
 	#endif
 
 	menu_display(id, menu, 0);
@@ -2102,21 +2111,29 @@ public top15handler(id, menu, item)
 	{
 		case 0:
 		{
-			kz_showhtml_motd(id, PRO_TOP, MapName)
+			ProTop_show(id)
 		}
 		case 1:
 		{
-			kz_showhtml_motd(id, NUB_TOP, MapName)
+			NoobTop_show(id)
 		}
 		case 2:
 		{
-			kz_showhtml_motd(id, PLAYERS_RANKING_PRO, MapName)
+			kz_showhtml_motd(id, PRO_RECORDS, "")
 		}
 		case 3:
 		{
-			kz_showhtml_motd(id, PLAYERS_RANKING_PRO, MapName)
+			kz_showhtml_motd(id, PLAYERS_RANKING, "")
 		}
 		case 4:
+		{
+			kz_showhtml_motd(id, LAST_PRO10, "")
+		}
+		case 5:
+		{
+			kz_showhtml_motd(id, MAPS_STATISTIC, "")
+		}
+		case 6:
 		{
 			kz_menu(id)
 		}
@@ -2302,8 +2319,8 @@ public finish_climb(id)
 	formatex(cData[2], charsmax(cData)-2, "^"%f^" ^"%d^" ^"%d^" ^"%d^"", time, wpn, checkpoints ,gocheck)
 
 
-	if(equal(steam, "VALVE_ID_LAN") || equal(steam, "STEAM_ID_LAN") || strlen(steam) > 18)
-	{
+	/*if(equal(steam, "VALVE_ID_LAN") || equal(steam, "STEAM_ID_LAN") || strlen(steam) > 18)
+	{*/
 		if (gochecknumbers[id] == 0 &&  !user_has_scout[id] )
 		{
 			cData[1] = PRO_TOP
@@ -2316,7 +2333,7 @@ public finish_climb(id)
 			formatex(createinto, sizeof createinto - 1, "SELECT time FROM `kz_nub15` WHERE mapname='%s' AND name='%s'", MapName, name)
 			SQL_ThreadQuery(g_SqlTuple, "Set_QueryHandler", createinto, cData, strlen(cData[2])+1)
 		}
-	} else
+	/*} else
 	{
 
 		if (gochecknumbers[id] == 0 &&  !user_has_scout[id] )
@@ -2331,7 +2348,7 @@ public finish_climb(id)
 			formatex(createinto, sizeof createinto - 1, "SELECT time FROM `kz_nub15` WHERE mapname='%s' AND authid='%s'", MapName, steam)
 			SQL_ThreadQuery(g_SqlTuple, "Set_QueryHandler", createinto, cData, strlen(cData[2])+1)
 		}
-	}
+	}*/
 	#else
 	new Float: time, authid[32]
 	time = get_gametime() - timer_time[id]
@@ -2421,11 +2438,11 @@ public Set_QueryHandler(iFailState, Handle:hQuery, szError[], iErrnum, cData[], 
 			ColorChat(id, GREEN,  "[KZ]^x01 %L^x03 %02i:%02i.%02i^x01 in ^x03%s", id, "KZ_IMPROVE", iMin, iSec, iMs, style == PRO_TOP ? "Pro 15" : "Noob 15")
 			formatex(checkpoints, 31, ", checkpoints='%d'", str_to_num(x3))
 			formatex(gochecks, 31, ", gocheck='%d'", str_to_num(x4))
-			if(equal(steam, "VALVE_ID_LAN") || equal(steam, "STEAM_ID_LAN") || strlen(steam) > 18)
+			//if(equal(steam, "VALVE_ID_LAN") || equal(steam, "STEAM_ID_LAN") || strlen(steam) > 18)
 				formatex(createinto, sizeof createinto - 1, "UPDATE `%s` SET time='%f', weapon='%s', date='%s', server='%s'%s%s WHERE name='%s' AND mapname='%s'", style == PRO_TOP ? "kz_pro15" : "kz_nub15", newtime, g_weaponsnames[str_to_num(x2)],  dia, server, style == PRO_TOP ? "" : gochecks, style == PRO_TOP ? "" : checkpoints, name, MapName)
-			else
+			/*
 				formatex(createinto, sizeof createinto - 1, "UPDATE `%s` SET time='%f', weapon='%s', date='%s', server='%s'%s%s WHERE authid='%s' AND mapname='%s'", style == PRO_TOP ? "kz_pro15" : "kz_nub15", newtime, g_weaponsnames[str_to_num(x2)],  dia, server, style == PRO_TOP ? "" : gochecks, style == PRO_TOP ? "" : checkpoints, steam, MapName)
-
+*/
 			SQL_ThreadQuery(g_SqlTuple, "QueryHandle", createinto )
 			GetNewRank(id, style)
 		}
@@ -2458,15 +2475,15 @@ public GetNewRank_QueryHandler(iFailState, Handle:hQuery, szError[], iErrnum, cD
 	while( SQL_MoreResults(hQuery) )
 	{
 		i++
-		if(equal(steam, "VALVE_ID_LAN") || equal(steam, "STEAM_ID_LAN") || strlen(steam) > 18)
-		{
+		/*if(equal(steam, "VALVE_ID_LAN") || equal(steam, "STEAM_ID_LAN") || strlen(steam) > 18)
+		{*/
 			SQL_ReadResult(hQuery, 0, name, 31)
 			if( equal(name, namez) )
 			{
 				ColorChat(0, GREEN,  "%s^x03 %s^x01 %L ^x03%d^x01 in^x03 %s^x01",prefix, namez, LANG_PLAYER, "KZ_PLACE", i, cData[1] == PRO_TOP ? "Pro 15" : "Noob 15");
 				break;
 			}
-		}
+		/*}
 		else
 		{
 			SQL_ReadResult(hQuery, 0, authid, 31)
@@ -2475,13 +2492,13 @@ public GetNewRank_QueryHandler(iFailState, Handle:hQuery, szError[], iErrnum, cD
 				ColorChat(0, GREEN,  "%s^x03 %s^x01 %L ^x03%d^x01 in^x03 %s^x01",prefix, namez, LANG_PLAYER, "KZ_PLACE", i, cData[1] == PRO_TOP ? "Pro 15" : "Noob 15");
 				break;
 			}
-		}
+		}*/
 		SQL_NextRow(hQuery)
 	}
 
 	return PLUGIN_CONTINUE
 }
-/*
+
 public ProTop_show(id)
 {
 	kz_showhtml_motd(id, PRO_TOP, MapName)
@@ -2511,37 +2528,50 @@ public ProRecs_show(id)
 	kz_showhtml_motd(id, PRO_RECORDS, MapName)
 
 	return PLUGIN_HANDLED
-}*/
+}
 
 stock kz_showhtml_motd(id, type, const map[])
 {
-	new buffer[125], filepath[96]
+	new buffer[1001], namebuffer[64], filepath[96]
 	get_pcvar_string(kz_sql_files, filepath, 95)
 	new authid[32]
-	get_user_name(id, authid, 31)
+	get_user_authid(id, authid, 31)
 
 	switch( type )
 	{
 		case PRO_TOP:
 		{
-			formatex(buffer, 124,"http://%s/index.php?map=%s&type=pro", filepath, map)
-
+			formatex(namebuffer, 63, "Pro 15 of %s", equal(map, "") ? "All Maps" : map)
+			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/pro15.php?map=%s^"></head><body><p>LOADING...</p></body></html>", filepath, map)
 		}
 		case NUB_TOP:
 		{
-			formatex(buffer, 124,"http://%s/index.php?map=%s&type=nub", filepath, map)
+			formatex(namebuffer, 63, "Noob 15 of %s", equal(map, "") ? "All Maps" : map)
+			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/nub15.php?map=%s^"></head><body><p>LOADING...</p></body></html>", filepath, map)
 		}
-		case PLAYERS_RANKING_PRO:
+		case PRO_RECORDS:
 		{
-			formatex(buffer, 124,"http://%s/index.php?name=%s&type=pro", filepath, authid)
+			formatex(namebuffer, 63, "ProRecords and Rank")
+			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/player.php?authid=%s^"></head><body><p>LOADING...</p></body></html>", filepath, authid)
 		}
-		case PLAYERS_RANKING_NUB:
+		case PLAYERS_RANKING:
 		{
-			formatex(buffer, 124,"http://%s/index.php?name=%s&type=nub", filepath, authid)
+			formatex(namebuffer, 63, "Players Ranking")
+			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/players.php^"></head><body><p>LOADING...</p></body></html>", filepath, authid)
+		}
+		case LAST_PRO10:
+		{
+			formatex(namebuffer, 63, "Last 10 Pro Entries")
+			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/lastpro.php^"></head><body><p>LOADING...</p></body></html>", filepath)
+		}
+		case MAPS_STATISTIC:
+		{
+			formatex(namebuffer, 63, "Maps Statistic")
+			formatex(buffer, 1000, "<html><head><meta http-equiv=^"Refresh^" content=^"0;url=http://%s/map.php^"></head><body><p>LOADING...</p></body></html>", filepath)
 		}
 	}
 
-	show_motd(id, buffer)
+	show_motd(id, buffer, namebuffer)
 }
 #else
 public ProTop_update(id, Float:time)
