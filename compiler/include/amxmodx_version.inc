@@ -4,14 +4,14 @@
 #endif
 #define _amxmodx_version_included
 
-#define AMXX_VERSION_TAG        "dev"
-#define AMXX_VERSION_CSET       "7b3646a"
+#define AMXX_VERSION_TAG        ""
+#define AMXX_VERSION_CSET       "1f09bd5"
 #define AMXX_VERSION_MAJOR      "1"
-#define AMXX_VERSION_MINOR      "8"
-#define AMXX_VERSION_RELEASE    "3"
-#define AMXX_VERSION_LOCAL_REV  "5151"
-#define AMXX_VERSION            1.83
-#define AMXX_VERSION_NUM        183
+#define AMXX_VERSION_MINOR      "9"
+#define AMXX_VERSION_RELEASE    "0"
+#define AMXX_VERSION_LOCAL_REV  "5247"
+#define AMXX_VERSION            1.90
+#define AMXX_VERSION_NUM        190
 
-stock const AMXX_VERSION_STR[] = "1.8.3-dev+5151";
+stock const AMXX_VERSION_STR[] = "1.9.0.5247";
     
